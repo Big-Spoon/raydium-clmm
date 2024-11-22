@@ -18,7 +18,8 @@ use anchor_spl::token_2022::{
     spl_token_2022::{self, instruction::AuthorityType},
 };
 use anchor_spl::token_interface;
-use mpl_token_metadata::{instruction::create_metadata_accounts_v3, state::Creator};
+use mpl_token_metadata::types::{Creator, DataV2};
+//use mpl_token_metadata::{instruction::create_metadata_accounts_v3, state::Creator};
 use std::cell::RefMut;
 #[cfg(feature = "enable-log")]
 use std::convert::identity;
@@ -835,27 +836,59 @@ fn initialize_metadata_account<'info>(
     uri: String,
     signers_seeds: &[&[&[u8]]],
 ) -> Result<()> {
-    let create_metadata_ix = create_metadata_accounts_v3(
-        metadata_program.key(),
-        metadata_account.key(),
-        position_nft_mint.key(),
-        authority.key(),
-        payer.key(),
-        authority.key(),
-        name,
-        symbol,
-        uri,
-        Some(vec![Creator {
-            address: authority.key(),
-            verified: true,
-            share: 100,
-        }]),
-        0,
-        true,
-        false,
-        None,
-        None,
-        None,
+    //
+    //
+    //        metadata_program.key(),
+    //        position_nft_mint.key(),
+    //        authority.key(),
+    // payer.key(),
+    //     authority.key(),
+    //     name,
+    //     symbol,
+    //     uri,
+    //     Some(vec![Creator {
+    //         address: authority.key(),
+    //         verified: true,
+    //         share: 100,
+    //     }]),
+    //     0,
+    //     true,
+    //     false,
+    //     None,
+    //     None,
+    //     None,
+
+    //
+    //
+
+    let create_metadata_ix = mpl_token_metadata::instructions::CreateMetadataAccountV3 {
+        metadata: metadata_account.key(),
+        mint: position_nft_mint.key(),
+        mint_authority: authority.key(),
+        payer: payer.key(),
+        update_authority: (metadata_program.key(), true),
+        system_program: system_program.key(),
+        rent: Some(rent.key()),
+    }
+    .instruction(
+        mpl_token_metadata::instructions::CreateMetadataAccountV3InstructionArgs {
+            data: DataV2 {
+                name,
+
+                symbol,
+                uri,
+                seller_fee_basis_points: 0,
+                creators: Some(vec![Creator {
+                    address: authority.key(),
+                    verified: true,
+                    share: 100,
+                }]),
+                collection: None,
+                uses: None,
+            },
+            is_mutable: false,
+            collection_details: None,
+        },
     );
     solana_program::program::invoke_signed(
         &create_metadata_ix,
