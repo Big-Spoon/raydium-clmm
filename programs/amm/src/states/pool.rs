@@ -326,6 +326,12 @@ impl PoolState {
             let latest_update_timestamp = curr_timestamp.min(reward_info.end_time);
 
             if self.liquidity != 0 {
+                let reword_update_time = reward_info.last_update_time;
+                println!(
+                    "checking gt {latest_update_timestamp} -->, {} -> {}",
+                    reword_update_time,
+                    latest_update_timestamp > reward_info.last_update_time
+                );
                 require_gte!(latest_update_timestamp, reward_info.last_update_time);
                 let time_delta = latest_update_timestamp
                     .checked_sub(reward_info.last_update_time)

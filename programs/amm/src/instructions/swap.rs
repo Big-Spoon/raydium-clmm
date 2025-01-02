@@ -573,11 +573,6 @@ pub fn exact_internal<'b, 'c: 'info, 'info>(
 
         let open_time = pool_state.open_time;
 
-        println!(
-            "checking gt {block_timestamp} -->, {} -> {}",
-            open_time,
-            block_timestamp > pool_state.open_time
-        );
         require_gt!(block_timestamp, pool_state.open_time);
 
         require!(
